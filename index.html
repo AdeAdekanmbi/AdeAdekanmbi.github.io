@@ -3,9 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Oluwaseun Noah Adeyeye | Modern Portfolio</title>
+    <title>Adeoluwa Samuel Adekanmbi | Modern Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -122,18 +123,6 @@
         transform: translateY(-3px);
       }
 
-      .page-transition {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: white;
-        z-index: 99999;
-        transform: scaleY(0);
-        transform-origin: bottom;
-        transition: transform 0.7s cubic-bezier(0.19, 1, 0.22, 1);
-      }
 
       .grid-item {
         transition: all 0.3s ease;
@@ -175,6 +164,87 @@
           background: white;
         }
       }
+
+      /* Aurora blobs */
+      .aurora-blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.45;
+        animation: floatBlob linear infinite;
+        pointer-events: none;
+      }
+      @keyframes floatBlob {
+        0%   { transform: translate(0, 0) scale(1); }
+        25%  { transform: translate(3%, 5%) scale(1.05); }
+        50%  { transform: translate(6%, 2%) scale(0.97); }
+        75%  { transform: translate(2%, 7%) scale(1.03); }
+        100% { transform: translate(0, 0) scale(1); }
+      }
+
+      /* Typewriter cursor blink */
+      .typewriter-cursor {
+        display: inline-block;
+        width: 3px;
+        height: 1em;
+        background: var(--primary);
+        margin-left: 4px;
+        vertical-align: middle;
+        animation: blink 0.9s step-end infinite;
+      }
+      @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50%       { opacity: 0; }
+      }
+
+      /* Scroll progress bar */
+      #scroll-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        width: 0%;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        z-index: 9999;
+        transition: width 0.1s linear;
+      }
+
+
+      /* Text reveal */
+      .reveal-text {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      /* Magnetic buttons */
+      .magnetic-btn {
+        transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.3s ease;
+        will-change: transform;
+      }
+
+      /* Stat counter cards */
+      .stat-card {
+        text-align: center;
+        padding: 1.5rem 1rem;
+      }
+      .stat-number {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+      }
+      .stat-label {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin-top: 0.4rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
     </style>
   </head>
   <body class="gradient-bg min-h-screen">
@@ -194,13 +264,11 @@
       </defs>
     </svg>
 
+    <!-- Scroll Progress Bar -->
+    <div id="scroll-progress"></div>
+
     <!-- Custom Cursor -->
     <div id="cursor"></div>
-
-    <!-- Page Transition -->
-    <div class="page-transition"></div>
-
-    <!-- Page content goes here -->
 
     <script>
       const cursor = document.getElementById("cursor");
@@ -211,16 +279,13 @@
         }px, ${e.clientY - cursor.offsetHeight / 2}px)`;
       });
     </script>
-    <!-- Page Transition -->
-    <div class="page-transition"></div>
-
     <!-- Navigation -->
     <nav class="fixed top-0 left-0 w-full bg-white shadow-sm z-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16 items-center">
           <div class="flex-shrink-0 flex items-center">
             <span class="text-xl font-bold text-gray-900 heading"
-              >NOAH ADEYEYE</span
+              >ADEOLUWA ADEKANMBI</span
             >
           </div>
           <div class="hidden md:block">
@@ -256,9 +321,9 @@
                 >
                   <div class="py-1">
                     <a
-                      href="#tree-tech"
+                      href="#projects"
                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                      >Tree Technologies</a
+                      >Projects</
                     >
                     <a
                       href="#youtube"
@@ -282,6 +347,7 @@
           </div>
           <div class="-mr-2 flex md:hidden">
             <button
+              id="mobile-menu-btn"
               type="button"
               class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 focus:outline-none"
               aria-controls="mobile-menu"
@@ -289,6 +355,7 @@
             >
               <span class="sr-only">Open main menu</span>
               <svg
+                id="menu-icon-open"
                 class="block h-6 w-6"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -303,8 +370,38 @@
                   d="M4 6h16M4 12h16M4 18h16"
                 />
               </svg>
+              <svg
+                id="menu-icon-close"
+                class="hidden h-6 w-6"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
             </button>
           </div>
+        </div>
+      </div>
+      <!-- Mobile Menu Panel -->
+      <div class="hidden md:hidden" id="mobile-menu">
+        <div class="px-2 pt-2 pb-3 space-y-1 border-t border-gray-100">
+          <a href="#home" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50">Home</a>
+          <a href="#resume" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50">Resume</a>
+          <a href="#cv" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50">CV</a>
+          <a href="#research" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50">Research</a>
+          <div class="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Projects</div>
+          <a href="#projects" class="mobile-nav-link block px-6 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50">Projects</a>
+          <a href="#youtube" class="mobile-nav-link block px-6 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50">YouTube</a>
+          <a href="#art" class="mobile-nav-link block px-6 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50">Writing &amp; Art</a>
+          <a href="#contact" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50">Contact</a>
         </div>
       </div>
     </nav>
@@ -316,35 +413,36 @@
         id="home"
         class="min-h-screen flex items-center justify-center relative overflow-hidden"
       >
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <!-- Aurora background blobs -->
+        <div class="aurora-blob" style="width:600px;height:600px;background:var(--primary);top:-10%;left:-15%;animation-duration:18s;"></div>
+        <div class="aurora-blob" style="width:500px;height:500px;background:var(--accent);top:30%;right:-10%;animation-duration:22s;animation-delay:-6s;"></div>
+        <div class="aurora-blob" style="width:400px;height:400px;background:var(--highlight);bottom:-5%;left:35%;animation-duration:26s;animation-delay:-12s;opacity:0.3;"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div class="text-center md:text-left">
               <h1
                 class="text-5xl md:text-6xl font-bold mb-6 text-gray-900 heading text-shadow"
               >
-                OLUWASEUN <span class="text-primary">NOAH</span> ADEYEYE
+                ADEOLUWA <span class="text-primary">SAMUEL</span> ADEKANMBI
               </h1>
               <h2
                 class="text-2xl md:text-3xl font-medium mb-8 text-gray-700 heading"
               >
-                Electrical Engineer | Researcher | Entrepreneur
+                <span id="typewriter-text"></span><span class="typewriter-cursor"></span>
               </h2>
-              <p class="text-lg mb-8 text-gray-600 max-w-lg">
-                Senior Electrical Engineering major with Mathematics and
-                Computer Science minors at Howard University. Passionate about
-                integrated photonics, entrepreneurship, and creative
-                technologies.
+              <p class="text-lg mb-8 text-gray-600 max-w-lg"> 
+                Senior Electrical Engineering student at Howard University, with Machine Learning research at MIT and Software Engineering experience at AWS. Passionate about Applied ML, Human-Centered AI, and Assistive Technologies.
               </p>
               <div class="flex flex-wrap gap-4 justify-center md:justify-start">
                 <a
                   href="#research"
-                  class="px-6 py-3 primary-gradient rounded-full text-white font-medium hover:shadow-lg transition-all hover-scale"
+                  class="px-6 py-3 primary-gradient rounded-full text-white font-medium hover:shadow-lg transition-all hover-scale magnetic-btn"
                 >
                   Explore My Research
                 </a>
                 <a
                   href="#contact"
-                  class="px-6 py-3 border border-primary rounded-full text-primary font-medium hover:bg-primary/10 transition-all hover-scale"
+                  class="px-6 py-3 border border-primary rounded-full text-primary font-medium hover:bg-primary/10 transition-all hover-scale magnetic-btn"
                 >
                   Get In Touch
                 </a>
@@ -355,16 +453,16 @@
                 class="relative glass-card rounded-2xl overflow-hidden hover-scale"
               >
                 <img
-                  src="images/IMG_2077.jpg"
-                  alt="Noah Adeyeye"
+                  src="images_ade/Ade_Headshot.jpeg" 
+                  alt="Adeoluwa Adekanmbi"
                   class="w-full h-auto"
                 />
                 <div
                   class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"
                 ></div>
-                <div class="absolute bottom-0 left-0 p-6">
+                <!-- <div class="absolute bottom-0 left-0 p-6">
                   <h3 class="text-xl font-bold text-white">Psalm 121:1-2</h3>
-                </div>
+                </div> -->
               </div>
             </div>
           </div>
@@ -375,8 +473,8 @@
       <section class="py-20 relative overflow-hidden bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center mb-16">
-            <h2 class="text-4xl font-bold text-gray-900 heading mb-4">
-              My <span class="text-primary">Story</span>
+            <h2 class="text-4xl font-bold text-gray-900 heading mb-4 reveal-text">
+              Who <span class="text-primary">I Am</span>
             </h2>
             <div class="w-24 h-1 primary-gradient mx-auto"></div>
           </div>
@@ -384,31 +482,42 @@
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <p class="text-gray-600 mb-6 text-lg">
-                I've always been fascinated by technology. From dismantling
-                electronics as a child to creating digital art and animations,
-                my curiosity has driven me to explore multiple disciplines.
+                I am an engineer and researcher with roots in Nigeria, passionate about creating technologies that support people and the world. My journey has taken me from rebuilding homes in Puerto Rico to doing research at MIT, always guided by service, curiosity, and perseverance.
               </p>
               <p class="text-gray-600 mb-6 text-lg">
-                At Howard University, I've found the perfect environment to
-                merge my passions for engineering, mathematics, and science. My
-                research experiences at Howard, Caltech, Stanford and NASA JPL
-                have further fueled my ambition to contribute to cutting-edge
-                technologies in integrated photonics.
+                At Howard University, I've found a community that sharpens both my technical skills and my sense of purpose. I care deeply about accessibility and applying my experience in machine learning and hardware engineering to design systems that make everyday life safer and more intuitive. I hope to use my work to expand opportunities for others in the same way many people invested in me.
               </p>
               <p class="text-gray-600 mb-6 text-lg">
-                Beyond academics, I love going to the gym, and reading
-                (especially comics). These outlets provide balance to my
-                technical pursuits and often inspire innovative approaches to my
-                problems.
+                Beyond the lab, I enjoy mentoring students and building community, hanging out with friends and serving others, playing piano, and playing football. These keep me grounded and energized for the journey ahead.
               </p>
+
+              <!-- Stat counters -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8" id="stats-row">
+                <div class="stat-card glass-card rounded-xl">
+                  <div class="stat-number" data-target="3">0</div>
+                  <div class="stat-label">Research Programs</div>
+                </div>
+                <div class="stat-card glass-card rounded-xl">
+                  <div class="stat-number" data-target="3" data-suffix="+">0</div>
+                  <div class="stat-label">Years of Research</div>
+                </div>
+                <div class="stat-card glass-card rounded-xl">
+                  <div class="stat-number" data-prefix="$" data-target="50" data-suffix="K+">0</div>
+                  <div class="stat-label">Funds Raised</div>
+                </div>
+                <div class="stat-card glass-card rounded-xl">
+                  <div class="stat-number" data-target="200" data-suffix="+">0</div>
+                  <div class="stat-label">Students Impacted</div>
+                </div>
+              </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div
                 class="grid-item glass-card rounded-xl overflow-hidden hover-scale"
               >
                 <img
-                  src="images/66D92D9B-966D-44DF-9694-C19B48739572_share.jpg"
-                  alt="Family"
+                  src="images_ade/Ade_Headshot.jpeg"
+                  alt="Ade_Headshot
                   class="w-full h-full object-cover"
                 />
               </div>
@@ -416,8 +525,8 @@
                 class="grid-item glass-card rounded-xl overflow-hidden hover-scale"
               >
                 <img
-                  src="images/IMG_1768.jpeg"
-                  alt="School Life"
+                  src="images_ade/Ade_Headshot.jpeg"
+                  alt="Ade_Headshot
                   class="w-full h-full object-cover"
                 />
               </div>
@@ -425,8 +534,8 @@
                 class="grid-item glass-card rounded-xl overflow-hidden hover-scale"
               >
                 <img
-                  src="images/IMG_2878.jpeg"
-                  alt="Fitness"
+                  src="images_ade/Ade_Headshot.jpeg"
+                  alt="Ade_Headshot
                   class="w-full h-full object-cover"
                 />
               </div>
@@ -434,8 +543,8 @@
                 class="grid-item glass-card rounded-xl overflow-hidden hover-scale"
               >
                 <img
-                  src="images/IMG_3202 2.jpg"
-                  alt="Comic Art"
+                  src="images_ade/Ade_Headshot.jpeg"
+                  alt="Ade_Headshot
                   class="w-full h-full object-cover"
                 />
               </div>
@@ -448,7 +557,7 @@
       <section id="resume" class="py-20 relative overflow-hidden bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center mb-16">
-            <h2 class="text-4xl font-bold text-gray-900 heading mb-4">
+            <h2 class="text-4xl font-bold text-gray-900 heading mb-4 reveal-text">
               My <span class="text-primary">Resume</span>
             </h2>
             <div class="w-24 h-1 primary-gradient mx-auto"></div>
@@ -459,7 +568,7 @@
               <div class="glass-card rounded-xl p-6 hover-scale">
                 <div class="aspect-w-16 aspect-h-9">
                   <img
-                    src="images/Oluwaseun_Resume_Fall25Final.png"
+                    src="Resume_Adekanmbi.pdf"
                     alt="Resume Preview"
                     class="w-full h-auto rounded-lg"
                   />
@@ -479,7 +588,7 @@
                 </p>
                 <div class="flex flex-wrap gap-4">
                   <a
-                    href="Oluwaseun_Resume_Fall25Final.pdf"
+                    href="Resume_Adekanmbi.pdf"
                     class="px-6 py-3 primary-gradient rounded-full text-white font-medium hover:shadow-lg transition-all hover-scale"
                   >
                     <i class="fas fa-download mr-2"></i> Download PDF
@@ -496,7 +605,7 @@
                     Updated Fall 2025
                   </h4>
                   <p class="text-sm text-gray-600">
-                    Includes latest research at Caltech, Stanford, and Howard
+                    Includes latest research at MIT, and Howard
                     University, along with recent technical skills and project
                     updates.
                   </p>
@@ -511,7 +620,7 @@
       <section id="cv" class="py-20 relative overflow-hidden bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center mb-16">
-            <h2 class="text-4xl font-bold text-gray-900 heading mb-4">
+            <h2 class="text-4xl font-bold text-gray-900 heading mb-4 reveal-text">
               Curriculum <span class="text-primary">Vitae</span>
             </h2>
             <div class="w-24 h-1 primary-gradient mx-auto"></div>
@@ -530,7 +639,7 @@
                 </p>
                 <div class="flex flex-wrap gap-4">
                   <a
-                    href="Oluwaseun_CV_Fall25.pdf"
+                    href="CV_Adekanmbi.pdf"
                     class="px-6 py-3 primary-gradient rounded-full text-white font-medium hover:shadow-lg transition-all hover-scale"
                   >
                     <i class="fas fa-download mr-2"></i> Download PDF
@@ -557,7 +666,7 @@
               <div class="glass-card rounded-xl p-6 hover-scale">
                 <div class="aspect-w-16 aspect-h-9">
                   <img
-                    src="images/Oluwaseun_CV_Fall25.png"
+                    src="CV_Adekanmbi.pdf"
                     alt="CV Preview"
                     class="w-full h-auto rounded-lg"
                   />
@@ -572,318 +681,130 @@
       <section id="research" class="py-20 relative overflow-hidden bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center mb-16">
-            <h2 class="text-4xl font-bold text-gray-900 heading mb-4">
+            <h2 class="text-4xl font-bold text-gray-900 heading mb-4 reveal-text">
               Research <span class="text-primary">Projects</span>
             </h2>
             <div class="w-24 h-1 primary-gradient mx-auto"></div>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-            <!-- Research Card Template -->
-            <div class="project-card perspective h-[500px] relative">
-              <div
-                class="project-card-inner absolute inset-0 transition-transform duration-700 transform-style-preserve"
-                onclick="this.classList.toggle('rotate')"
-              >
-                <div
-                  class="project-card-front absolute w-full h-full backface-hidden glass-card rounded-xl p-6 flex flex-col hover-scale"
-                >
-                  <div class="flex-grow">
-                    <div
-                      class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4"
-                    >
-                      <i class="fas fa-atom text-2xl text-primary"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-3 heading">
-                      Stanford University
-                    </h3>
-                    <p class="text-gray-600">
-                      Research on upconversion photonics with the Congreve Lab,
-                      focusing on developing novel materials for efficient
-                      photon upconversion applications.
-                    </p>
-                  </div>
-                  <div class="mt-4">
-                    <span
-                      class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary"
-                      >Photonics</span
-                    >
-                    <span
-                      class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-accent/10 text-accent"
-                      >Materials Science</span
-                    >
-                  </div>
-                </div>
-                <div
-                  class="project-card-back absolute w-full h-full backface-hidden transform rotate-y-180 glass-card rounded-xl p-6 flex flex-col justify-center"
-                >
-                  <h4 class="text-xl font-bold text-gray-900 mb-3 heading">
-                    Key Contributions
-                  </h4>
-                  <ul class="text-gray-600 space-y-2">
-                    <li class="flex items-start">
-                      <i class="fas fa-check-circle text-primary mt-1 mr-2"></i
-                      ><span
-                        >Improved on characterization techniques for
-                        upconversion materials</span
-                      >
-                    </li>
-                    <li class="flex items-start">
-                      <i class="fas fa-check-circle text-primary mt-1 mr-2"></i
-                      ><span
-                        >Optimized experimental protocols for improved data
-                        collection</span
-                      >
-                    </li>
-                    <li class="flex items-start">
-                      <i class="fas fa-check-circle text-primary mt-1 mr-2"></i
-                      ><span
-                        >Presented findings at the Leadership Alliance Research
-                        Conference</span
-                      >
-                    </li>
-                  </ul>
-                  <a
-                    href="https://congrevelab.stanford.edu/"
-                    target="_blank"
-                    class="mt-6 inline-flex items-center text-primary hover:text-primary-dark transition"
-                    >Visit Lab Website<i
-                      class="fas fa-external-link-alt ml-2"
-                    ></i
-                  ></a>
-                </div>
-              </div>
-            </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
 
+            <!-- Card 1: AI4Smell -->
             <div class="project-card perspective h-[500px] relative">
-              <div
-                class="project-card-inner absolute inset-0 transition-transform duration-700 transform-style-preserve"
-                onclick="this.classList.toggle('rotate')"
-              >
-                <div
-                  class="project-card-front absolute w-full h-full backface-hidden glass-card rounded-xl p-6 flex flex-col hover-scale"
-                >
+              <div class="project-card-inner absolute inset-0 transition-transform duration-700 transform-style-preserve" onclick="this.classList.toggle('rotate')">
+                <div class="project-card-front absolute w-full h-full backface-hidden glass-card rounded-xl p-6 flex flex-col hover-scale">
                   <div class="flex-grow">
-                    <div
-                      class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4"
-                    >
-                      <i
-                        class="fas fa-satellite-dish text-2xl text-primary"
-                      ></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-3 heading">
-                      NASA JPL
-                    </h3>
-                    <p class="text-gray-600">
-                      Worked on coronagraph design and simulation tool
-                      development in Julia, contributing to exoplanet detection
-                      technologies.
-                    </p>
-                  </div>
-                  <div class="mt-4">
-                    <span
-                      class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary"
-                      >Space Tech</span
-                    >
-                    <span
-                      class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-accent/10 text-accent"
-                      >Julia Programming</span
-                    >
-                  </div>
-                </div>
-                <div
-                  class="project-card-back absolute w-full h-full backface-hidden transform rotate-y-180 glass-card rounded-xl p-6 flex flex-col justify-center"
-                >
-                  <h4 class="text-xl font-bold text-gray-900 mb-3 heading">
-                    Key Contributions
-                  </h4>
-                  <ul class="text-gray-600 space-y-2">
-                    <li class="flex items-start">
-                      <i class="fas fa-check-circle text-primary mt-1 mr-2"></i
-                      ><span
-                        >Developed simulation tools for coronagraph performance
-                        analysis</span
-                      >
-                    </li>
-                    <li class="flex items-start">
-                      <i class="fas fa-check-circle text-primary mt-1 mr-2"></i
-                      ><span
-                        >Implemented numerical methods for optical system
-                        modeling</span
-                      >
-                    </li>
-                    <li class="flex items-start">
-                      <i class="fas fa-check-circle text-primary mt-1 mr-2"></i
-                      ><span
-                        >Contributed to documentation and code
-                        optimization</span
-                      >
-                    </li>
-                  </ul>
-                  <a
-                    href="https://www.sudoem.com/people"
-                    target="_blank"
-                    class="mt-6 inline-flex items-center text-primary hover:text-primary-dark transition"
-                    >Visit Lab Website<i
-                      class="fas fa-external-link-alt ml-2"
-                    ></i
-                  ></a>
-                </div>
-              </div>
-            </div>
-            <div class="project-card perspective h-[500px] relative">
-              <div
-                class="project-card-inner absolute inset-0 transition-transform duration-700 transform-style-preserve"
-                onclick="this.classList.toggle('rotate')"
-              >
-                <!-- Front of Card -->
-                <div
-                  class="project-card-front absolute w-full h-full backface-hidden glass-card rounded-xl p-6 flex flex-col hover-scale"
-                >
-                  <div class="flex-grow">
-                    <div
-                      class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4"
-                    >
-                      <i class="fas fa-lightbulb text-2xl text-primary"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-3 heading">
-                      Caltech
-                    </h3>
-                    <p class="text-gray-600">
-                      Conducted research in the Marandi Lab on thin-film lithium
-                      niobate mode-locked lasers, focusing on nonlinear
-                      photonics, optoelectronic feedback, and integrated
-                      photonic circuits.
-                    </p>
-                  </div>
-                  <div class="mt-4">
-                    <span
-                      class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary"
-                      >Nonlinear Photonics</span
-                    >
-                    <span
-                      class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-accent/10 text-accent"
-                      >Integrated Photonics</span
-                    >
-                  </div>
-                </div>
-
-                <!-- Back of Card -->
-                <div
-                  class="project-card-back absolute w-full h-full backface-hidden transform rotate-y-180 glass-card rounded-xl p-6 flex flex-col justify-center"
-                >
-                  <h4 class="text-xl font-bold text-gray-900 mb-3 heading">
-                    Key Contributions
-                  </h4>
-                  <ul class="text-gray-600 space-y-2">
-                    <li class="flex items-start">
-                      <i class="fas fa-check-circle text-primary mt-1 mr-2"></i>
-                      <span
-                        >Developed and tested regenerative RF feedback loops for
-                        mode-locking stability</span
-                      >
-                    </li>
-                    <li class="flex items-start">
-                      <i class="fas fa-check-circle text-primary mt-1 mr-2"></i>
-                      <span
-                        >Worked on fabrication-informed modeling of thin-film
-                        lithium niobate devices</span
-                      >
-                    </li>
-                    <li class="flex items-start">
-                      <i class="fas fa-check-circle text-primary mt-1 mr-2"></i>
-                      <span
-                        >Collected and analyzed beat-note data to evaluate laser
-                        performance</span
-                      >
-                    </li>
-                  </ul>
-                  <a
-                    href="https://light.caltech.edu/"
-                    target="_blank"
-                    class="mt-6 inline-flex items-center text-primary hover:text-primary-dark transition"
-                    >Visit Lab Website<i
-                      class="fas fa-external-link-alt ml-2"
-                    ></i
-                  ></a>
-                </div>
-              </div>
-            </div>
-
-            <div class="project-card perspective h-[500px] relative">
-              <div
-                class="project-card-inner absolute inset-0 transition-transform duration-700 transform-style-preserve"
-                onclick="this.classList.toggle('rotate')"
-              >
-                <div
-                  class="project-card-front absolute w-full h-full backface-hidden glass-card rounded-xl p-6 flex flex-col hover-scale"
-                >
-                  <div class="flex-grow">
-                    <div
-                      class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4"
-                    >
+                    <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                       <i class="fas fa-flask text-2xl text-primary"></i>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-3 heading">
-                      Howard University
-                    </h3>
-                    <p class="text-gray-600">
-                      Research on Raman spectroscopy and lunar analog minerals,
-                      investigating the composition and properties of materials
-                      relevant to space exploration.
-                    </p>
+                    <p class="text-xs font-semibold text-accent uppercase tracking-wider mb-1">MIT Media Lab · Summer 2025</p>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-3 heading">AI4Smell</h3>
+                    <p class="text-gray-600">Developed a machine olfaction system detecting peanut allergens in real time using portable gas sensors and embedded ML models.</p>
                   </div>
                   <div class="mt-4">
-                    <span
-                      class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary"
-                      >Spectroscopy</span
-                    >
-                    <span
-                      class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-accent/10 text-accent"
-                      >Planetary Science</span
-                    >
+                    <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary">Machine Olfaction</span>
+                    <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-accent/10 text-accent">Embedded ML</span>
                   </div>
                 </div>
-                <div
-                  class="project-card-back absolute w-full h-full backface-hidden transform rotate-y-180 glass-card rounded-xl p-6 flex flex-col justify-center"
-                >
-                  <h4 class="text-xl font-bold text-gray-900 mb-3 heading">
-                    Key Contributions
-                  </h4>
+                <div class="project-card-back absolute w-full h-full backface-hidden transform rotate-y-180 glass-card rounded-xl p-6 flex flex-col justify-center">
+                  <h4 class="text-xl font-bold text-gray-900 mb-3 heading">Key Contributions</h4>
                   <ul class="text-gray-600 space-y-2">
-                    <li class="flex items-start">
-                      <i class="fas fa-check-circle text-primary mt-1 mr-2"></i
-                      ><span
-                        >Conducted Raman spectroscopy analysis of lunar analog
-                        samples</span
-                      >
-                    </li>
-                    <li class="flex items-start">
-                      <i class="fas fa-check-circle text-primary mt-1 mr-2"></i
-                      ><span
-                        >Developed protocols for sample preparation and data
-                        collection</span
-                      >
-                    </li>
-                    <li class="flex items-start">
-                      <i class="fas fa-check-circle text-primary mt-1 mr-2"></i
-                      ><span
-                        >Presented findings at the Howard University Research
-                        Symposium</span
-                      >
-                    </li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-primary mt-1 mr-2"></i><span>Collected 4+ hours of multi-sensor time-series data on food mixtures</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-primary mt-1 mr-2"></i><span>Trained ML models achieving ~80% confidence in real-time allergen detection</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-primary mt-1 mr-2"></i><span>Deployed low-latency inference pipeline on embedded hardware</span></li>
                   </ul>
-                  <a
-                    href="https://laserspectroscopylaboratory.org/about/"
-                    target="_blank"
-                    class="mt-6 inline-flex items-center text-primary hover:text-primary-dark transition"
-                    >Visit Lab Website<i
-                      class="fas fa-external-link-alt ml-2"
-                    ></i
-                  ></a>
+                  <a href="#" target="_blank" class="mt-6 inline-flex items-center text-primary hover:text-primary-dark transition">View Poster<i class="fas fa-external-link-alt ml-2"></i></a>
                 </div>
               </div>
             </div>
+
+            <!-- Card 2: MultiSenseNet -->
+            <div class="project-card perspective h-[500px] relative">
+              <div class="project-card-inner absolute inset-0 transition-transform duration-700 transform-style-preserve" onclick="this.classList.toggle('rotate')">
+                <div class="project-card-front absolute w-full h-full backface-hidden glass-card rounded-xl p-6 flex flex-col hover-scale">
+                  <div class="flex-grow">
+                    <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                      <i class="fas fa-brain text-2xl text-primary"></i>
+                    </div>
+                    <p class="text-xs font-semibold text-accent uppercase tracking-wider mb-1">MIT LIDS · Summer 2024</p>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-3 heading">MultiSenseNet</h3>
+                    <p class="text-gray-600">Built a unified multimodal multitask learning framework processing images and text simultaneously, investigating how fusion strategies affect generalization across diverse ML tasks.</p>
+                  </div>
+                  <div class="mt-4">
+                    <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary">Multi-Task Learning</span>
+                    <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-accent/10 text-accent">Multimodal AI</span>
+                  </div>
+                </div>
+                <div class="project-card-back absolute w-full h-full backface-hidden transform rotate-y-180 glass-card rounded-xl p-6 flex flex-col justify-center">
+                  <h4 class="text-xl font-bold text-gray-900 mb-3 heading">Key Contributions</h4>
+                  <ul class="text-gray-600 space-y-2">
+                    <li class="flex items-start"><i class="fas fa-check-circle text-primary mt-1 mr-2"></i><span>Designed and benchmarked CNN, LSTM, and fusion architectures across diverse tasks</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-primary mt-1 mr-2"></i><span>Compared early vs. late fusion strategies for cross-modal generalization</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-primary mt-1 mr-2"></i><span>Investigated transformer scalability for renewable-energy forecasting</span></li>
+                  </ul>
+                  <a href="#" target="_blank" class="mt-6 inline-flex items-center text-primary hover:text-primary-dark transition">View Poster<i class="fas fa-external-link-alt ml-2"></i></a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 3: AI4Climate -->
+            <div class="project-card perspective h-[500px] relative">
+              <div class="project-card-inner absolute inset-0 transition-transform duration-700 transform-style-preserve" onclick="this.classList.toggle('rotate')">
+                <div class="project-card-front absolute w-full h-full backface-hidden glass-card rounded-xl p-6 flex flex-col hover-scale">
+                  <div class="flex-grow">
+                    <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                      <i class="fas fa-leaf text-2xl text-primary"></i>
+                    </div>
+                    <p class="text-xs font-semibold text-accent uppercase tracking-wider mb-1">MIT LIDS · Extended Collaboration</p>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-3 heading">AI4Climate</h3>
+                    <p class="text-gray-600">Extended MultiSenseNet to climate applications, analyzing 10 datasets spanning emissions, power systems, and satellite imagery to tackle climate change with ML.</p>
+                  </div>
+                  <div class="mt-4">
+                    <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary">Climate ML</span>
+                    <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-accent/10 text-accent">Transfer Learning</span>
+                  </div>
+                </div>
+                <div class="project-card-back absolute w-full h-full backface-hidden transform rotate-y-180 glass-card rounded-xl p-6 flex flex-col justify-center">
+                  <h4 class="text-xl font-bold text-gray-900 mb-3 heading">Key Contributions</h4>
+                  <ul class="text-gray-600 space-y-2">
+                    <li class="flex items-start"><i class="fas fa-check-circle text-primary mt-1 mr-2"></i><span>Analyzed 10 datasets across emissions, power systems, and satellite imagery</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-primary mt-1 mr-2"></i><span>Trained Transformer-based models for energy load forecasting</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-primary mt-1 mr-2"></i><span>Compared multimodal vs. unimodal approaches for environmental impact modeling</span></li>
+                  </ul>
+                  <a href="#" target="_blank" class="mt-6 inline-flex items-center text-primary hover:text-primary-dark transition">View Poster<i class="fas fa-external-link-alt ml-2"></i></a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 4: Howard VIP -->
+            <div class="project-card perspective h-[500px] relative">
+              <div class="project-card-inner absolute inset-0 transition-transform duration-700 transform-style-preserve" onclick="this.classList.toggle('rotate')">
+                <div class="project-card-front absolute w-full h-full backface-hidden glass-card rounded-xl p-6 flex flex-col hover-scale">
+                  <div class="flex-grow">
+                    <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                      <i class="fas fa-microchip text-2xl text-primary"></i>
+                    </div>
+                    <p class="text-xs font-semibold text-accent uppercase tracking-wider mb-1">Howard University VIP · 2022–2024</p>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-3 heading">Autonomous Pump System</h3>
+                    <p class="text-gray-600">Designed and built a small-scale autonomous water-pump control system using a PLC, capacitive sensors, and solid-state relays — automating water-level detection in collaboration with DC Water.</p>
+                  </div>
+                  <div class="mt-4">
+                    <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary">Embedded Systems</span>
+                    <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-accent/10 text-accent">PLC</span>
+                  </div>
+                </div>
+                <div class="project-card-back absolute w-full h-full backface-hidden transform rotate-y-180 glass-card rounded-xl p-6 flex flex-col justify-center">
+                  <h4 class="text-xl font-bold text-gray-900 mb-3 heading">Key Contributions</h4>
+                  <ul class="text-gray-600 space-y-2">
+                    <li class="flex items-start"><i class="fas fa-check-circle text-primary mt-1 mr-2"></i><span>Designed control algorithms using capacitive sensors and solid-state relays</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-primary mt-1 mr-2"></i><span>Built a Raspberry Pi-based radial pulse monitoring system for ADC data acquisition</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-primary mt-1 mr-2"></i><span>Verified signal integrity using oscilloscopes and multimeters</span></li>
+                  </ul>
+                  <a href="#" target="_blank" class="mt-6 inline-flex items-center text-primary hover:text-primary-dark transition">View Slide Deck<i class="fas fa-external-link-alt ml-2"></i></a>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
@@ -907,118 +828,93 @@
       </style>
 
       <!-- Tree Technologies Section -->
-      <section id="tree-tech" class="py-20 relative overflow-hidden bg-gray-50">
+      <section id="projects" class="py-20 relative overflow-hidden bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center mb-16">
-            <h2 class="text-4xl font-bold text-gray-900 heading mb-4">
-              Tree <span class="text-primary">Technologies</span>
+            <h2 class="text-4xl font-bold text-gray-900 heading mb-4 reveal-text">
+              My <span class="text-primary">Projects</span>
             </h2>
             <div class="w-24 h-1 primary-gradient mx-auto"></div>
           </div>
 
+          <!-- Featured: MindMatters -->
           <div class="glass-card rounded-xl p-8 mb-12 hover-scale">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
               <div>
-                <h3 class="text-3xl font-bold text-gray-900 mb-6 heading">
-                  Empowering Students Through Technology
-                </h3>
-                <p class="text-gray-600 mb-6">
-                  Tree Technologies is an innovative business I co-founded to
-                  connect students with campus information, resources, and
-                  tools. Our flagship product, Rooted, is a mobile app currently
-                  available for Howard students.
-                </p>
-                <p class="text-gray-600 mb-6">
-                  After winning the Howard University Empower pitch competition,
-                  we launched Rooted to provide students with easy access to
-                  calendars, clubs, student businesses, and sports.
-                </p>
+                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700 mb-4">
+                  <i class="fas fa-trophy"></i> Bison Hacks 2024 · 1st Place Winner
+                </span>
+                <h3 class="text-3xl font-bold text-gray-900 mb-4 heading">MindMatters</h3>
+                <p class="text-gray-600 mb-4">An AI chatbot supporting first-generation college students with personalized academic, financial, and career guidance. Built in 24 hours and won 1st place at Howard University's Bison Hacks hackathon — beating out dozens of competing teams.</p>
+                <p class="text-gray-600 mb-6">Designed to lower barriers for students who lack access to mentors and advisors, MindMatters meets students where they are and gives them the guidance they need to thrive.</p>
+                <div class="flex flex-wrap gap-2 mb-6">
+                  <span class="px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary">AI Chatbot</span>
+                  <span class="px-3 py-1 text-xs font-semibold rounded-full bg-accent/10 text-accent">Ed-Tech</span>
+                  <span class="px-3 py-1 text-xs font-semibold rounded-full bg-highlight/10 text-highlight">NLP</span>
+                </div>
                 <div class="flex flex-wrap gap-4">
-                  <a
-                    href="https://www.tree-technologies.com/"
-                    class="px-6 py-3 primary-gradient rounded-full text-white font-medium hover:shadow-lg transition-all hover-scale"
-                  >
-                    Visit Website
-                  </a>
-                  <a
-                    href="https://linktr.ee/hutreetech?fbclid=PAZXh0bgNhZW0CMTEAAaewkuDRIgucnn2jFXWf7RK4Y9JBAg-rzskJdwMUfR-bcOu8PsxhiPOWZU7oYg_aem_TZyVOlLvfz2FQylXzjaZmA"
-                    class="px-6 py-3 border border-primary rounded-full text-primary font-medium hover:bg-primary/10 transition-all hover-scale"
-                  >
-                    View Linktree
-                  </a>
+                  <a href="#" class="px-6 py-3 primary-gradient rounded-full text-white font-medium hover:shadow-lg transition-all hover-scale">View Project</a>
+                  <a href="#" class="px-6 py-3 border border-primary rounded-full text-primary font-medium hover:bg-primary/10 transition-all hover-scale">View on Devpost</a>
                 </div>
               </div>
-              <div
-                class="grid-item glass-card rounded-xl overflow-hidden hover-scale"
-              >
-                <img
-                  src="images/IMG_1528 2.JPG"
-                  alt="Tree Technologies"
-                  class="w-full h-full object-cover"
-                />
+              <div class="grid-item rounded-xl overflow-hidden hover-scale">
+                <!-- Photo placeholder — swap src when ready -->
+                <div class="w-full h-72 bg-gradient-to-br from-primary/20 via-accent/20 to-highlight/20 rounded-xl flex flex-col items-center justify-center gap-3 border-2 border-dashed border-primary/30">
+                  <i class="fas fa-image text-4xl text-primary/40"></i>
+                  <p class="text-sm text-gray-400 font-medium">Photo coming soon</p>
+                </div>
               </div>
             </div>
           </div>
 
+          <!-- Other Projects -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="glass-card rounded-xl p-6 hover-scale">
-              <div
-                class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4"
-              >
-                <i class="fas fa-trophy text-xl text-primary"></i>
+
+            <!-- MoneyMind -->
+            <div class="glass-card rounded-xl p-6 hover-scale flex flex-col">
+              <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-wallet text-xl text-primary"></i>
               </div>
-              <h3 class="text-xl font-bold text-gray-900 mb-3 heading">
-                HU Empower Winner
-              </h3>
-              <p class="text-gray-600 mb-4">
-                Won first place in Howard University's prestigious Empower pitch
-                competition, securing seed funding and mentorship for Tree
-                Technologies.
-              </p>
-              <span
-                class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary"
-                >Entrepreneurship</span
-              >
+              <p class="text-xs font-semibold text-accent uppercase tracking-wider mb-1">BisonBytes 2025</p>
+              <h3 class="text-xl font-bold text-gray-900 mb-3 heading">MoneyMind</h3>
+              <p class="text-gray-600 mb-4 flex-grow">A web platform combining financial management and a peer-to-peer student marketplace powered by the Gemini API for personalized AI recommendations.</p>
+              <div class="flex flex-wrap gap-2 mb-4">
+                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary">Gemini API</span>
+                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-accent/10 text-accent">Fintech</span>
+              </div>
+              <a href="#" target="_blank" class="inline-flex items-center text-sm font-medium text-primary hover:underline">View on Devpost <i class="fas fa-external-link-alt ml-2 text-xs"></i></a>
             </div>
 
-            <div class="glass-card rounded-xl p-6 hover-scale">
-              <div
-                class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4"
-              >
-                <i class="fas fa-mobile-alt text-xl text-primary"></i>
+            <!-- ResQLink -->
+            <div class="glass-card rounded-xl p-6 hover-scale flex flex-col">
+              <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-map-marked-alt text-xl text-primary"></i>
               </div>
-              <h3 class="text-xl font-bold text-gray-900 mb-3 heading">
-                Rooted App Launch
-              </h3>
-              <p class="text-gray-600 mb-4">
-                Successfully launched the Rooted mobile app, currently serving
-                hundreds of Howard students with academic and campus resources.
-              </p>
-              <span
-                class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-accent/10 text-accent"
-                >Mobile Development</span
-              >
+              <p class="text-xs font-semibold text-accent uppercase tracking-wider mb-1">BisonHacks 2025</p>
+              <h3 class="text-xl font-bold text-gray-900 mb-3 heading">ResQLink</h3>
+              <p class="text-gray-600 mb-4 flex-grow">An AI-powered emergency response app routing users to shelters during natural disasters using real-time Google Maps API and LLMs.</p>
+              <div class="flex flex-wrap gap-2 mb-4">
+                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary">Google Maps API</span>
+                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-accent/10 text-accent">LLMs</span>
+              </div>
+              <a href="#" target="_blank" class="inline-flex items-center text-sm font-medium text-primary hover:underline">View on Devpost <i class="fas fa-external-link-alt ml-2 text-xs"></i></a>
             </div>
 
-            <div class="glass-card rounded-xl p-6 hover-scale">
-              <div
-                class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4"
-              >
-                <i class="fas fa-users text-xl text-primary"></i>
+            <!-- Digital Combination Lock -->
+            <div class="glass-card rounded-xl p-6 hover-scale flex flex-col">
+              <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-lock text-xl text-primary"></i>
               </div>
-              <h3 class="text-xl font-bold text-gray-900 mb-3 heading">
-                Student Impact
-              </h3>
-              <p class="text-gray-600 mb-4">
-                Partnered with student organizations to enhance campus
-                engagement and provide valuable resources through the Rooted
-                app.
-              </p>
-              <span
-                class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-secondary/10 text-secondary"
-                >Community</span
-              >
+              <p class="text-xs font-semibold text-accent uppercase tracking-wider mb-1">Howard University · Nov 2023</p>
+              <h3 class="text-xl font-bold text-gray-900 mb-3 heading">Digital Combination Lock</h3>
+              <p class="text-gray-600 mb-4 flex-grow">Built a Finite State Machine (FSM) for a digital combination lock with state transitions driven by keypad input — implemented in VHDL on an FPGA.</p>
+              <div class="flex flex-wrap gap-2 mb-4">
+                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary">VHDL</span>
+                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-accent/10 text-accent">FPGA</span>
+              </div>
+              <a href="#" target="_blank" class="inline-flex items-center text-sm font-medium text-primary hover:underline">View Project <i class="fas fa-external-link-alt ml-2 text-xs"></i></a>
             </div>
+
           </div>
         </div>
       </section>
@@ -1027,8 +923,8 @@
       <section id="youtube" class="py-20 relative overflow-hidden bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center mb-16">
-            <h2 class="text-4xl font-bold text-gray-900 heading mb-4">
-              Noah <span class="text-primary">Network</span>
+            <h2 class="text-4xl font-bold text-gray-900 heading mb-4 reveal-text">
+              Ade's <span class="text-primary">Network</span>
             </h2>
             <div class="w-24 h-1 primary-gradient mx-auto"></div>
           </div>
@@ -1039,13 +935,13 @@
                 Educational Content & Animation
               </h3>
               <p class="text-gray-600 mb-6">
-                The Noah Network YouTube channel combines my passion for
+                The Ade's Network YouTube channel combines my passion for
                 education, technology, and animation. Through videos, I talk
                 about various topics using animations.
               </p>
               <div class="flex flex-wrap gap-4">
                 <a
-                  href="https://www.youtube.com/@noahnetwork-h4z"
+                  href="https://www.youtube.com/"
                   class="px-6 py-3 primary-gradient rounded-full text-white font-medium hover:shadow-lg transition-all hover-scale flex items-center"
                 >
                   <i class="fab fa-youtube mr-2"></i> Visit Channel
@@ -1072,10 +968,10 @@
                 >
                   <div>
                     <h4 class="text-xl font-bold text-white">
-                      Subscribe to Noah Network
+                      Subscribe to Ade's Channel
                     </h4>
                     <p class="text-gray-300">
-                      For STEM education and animated content
+                      For content
                     </p>
                   </div>
                 </div>
@@ -1094,7 +990,7 @@
       <section id="art" class="py-20 relative overflow-hidden bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center mb-16">
-            <h2 class="text-4xl font-bold text-gray-900 heading mb-4">
+            <h2 class="text-4xl font-bold text-gray-900 heading mb-4 reveal-text">
               Writing & <span class="text-primary">Art</span>
             </h2>
             <div class="w-24 h-1 primary-gradient mx-auto"></div>
@@ -1104,7 +1000,7 @@
             <div>
               <div class="glass-card rounded-xl overflow-hidden hover-scale">
                 <img
-                  src="images/IMG_7616.jpg"
+                  src="images_ade/Ade_Headshot.jpeg"
                   alt="Creative Work"
                   class="w-full h-auto"
                 />
@@ -1195,7 +1091,7 @@
       <section id="contact" class="py-20 relative overflow-hidden bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center mb-16">
-            <h2 class="text-4xl font-bold text-gray-900 heading mb-4">
+            <h2 class="text-4xl font-bold text-gray-900 heading mb-4 reveal-text">
               Get In <span class="text-primary">Touch</span>
             </h2>
             <div class="w-24 h-1 primary-gradient mx-auto"></div>
@@ -1215,35 +1111,35 @@
 
               <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
                 <a
-                  href="https://www.linkedin.com/in/oluwaseun-adeyeye-84a2a7253/"
+                  href="https://www.linkedin.com/in/adeoluwa-adekanmbi/"
                   class="social-icon flex flex-col items-center justify-center p-4 rounded-full bg-gray-50 hover:bg-gray-100 transition hover-scale"
                 >
                   <i class="fab fa-linkedin-in text-2xl text-primary mb-2"></i>
                   <span class="text-xs text-gray-600">LinkedIn</span>
                 </a>
                 <a
-                  href="https://www.youtube.com/@noahnetwork-h4z"
+                  href="https://www.youtube.com/"
                   class="social-icon flex flex-col items-center justify-center p-4 rounded-full bg-gray-50 hover:bg-gray-100 transition hover-scale"
                 >
                   <i class="fab fa-youtube text-2xl text-primary mb-2"></i>
                   <span class="text-xs text-gray-600">YouTube</span>
                 </a>
                 <a
-                  href="https://github.com/NoahAdeyeye"
+                  href="https://github.com/AdeAdekanmbi"
                   class="social-icon flex flex-col items-center justify-center p-4 rounded-full bg-gray-50 hover:bg-gray-100 transition hover-scale"
                 >
                   <i class="fab fa-github text-2xl text-primary mb-2"></i>
                   <span class="text-xs text-gray-600">GitHub</span>
                 </a>
                 <a
-                  href="https://www.instagram.com/noah.adeyeye/?hl=en"
+                  href="https://www.instagram.com/legendary.adex/?hl=en"
                   class="social-icon flex flex-col items-center justify-center p-4 rounded-full bg-gray-50 hover:bg-gray-100 transition hover-scale"
                 >
                   <i class="fab fa-instagram text-2xl text-primary mb-2"></i>
                   <span class="text-xs text-gray-600">Instagram</span>
                 </a>
                 <a
-                  href="mailto:oluwasuen.adeyeye@bison.howard.edu"
+                  href="mailto: samoluwa50@gmail.com"
                   class="social-icon flex flex-col items-center justify-center p-4 rounded-full bg-gray-50 hover:bg-gray-100 transition hover-scale col-span-2 md:col-span-1"
                 >
                   <i class="fas fa-envelope text-2xl text-primary mb-2"></i>
@@ -1256,10 +1152,10 @@
                   For professional inquiries, please email:
                 </p>
                 <a
-                  href="mailto:oluwasuen.adeyeye@bison.howard.edu"
+                  href="mailto: samoluwa50@gmail.com"
                   class="text-primary font-medium text-lg hover:text-primary-dark transition"
                 >
-                  oluwasuen.adeyeye@bison.howard.edu
+                  samoluwa50@gmail.com
                 </a>
               </div>
             </div>
@@ -1274,24 +1170,24 @@
         <div class="flex flex-col md:flex-row justify-between items-center">
           <div class="mb-4 md:mb-0">
             <p class="text-gray-400 text-sm">
-              © 2024 Oluwaseun Noah Adeyeye. All rights reserved.
+              © 2026 Adeoluwa Samuel Adekanmbi. All rights reserved.
             </p>
           </div>
           <div class="flex space-x-6">
             <a
-              href="https://www.linkedin.com/in/oluwaseun-adeyeye-84a2a7253/"
+              href="https://www.linkedin.com/in/adeoluwa-adekanmbi/"
               class="social-icon text-gray-400 hover:text-white transition"
             >
               <i class="fab fa-linkedin-in text-lg"></i>
             </a>
             <a
-              href="https://www.youtube.com/@noahnetwork-h4z"
+              href="https://www.linkedin.com/in/adeoluwa-adekanmbi/"
               class="social-icon text-gray-400 hover:text-white transition"
             >
               <i class="fab fa-youtube text-lg"></i>
             </a>
             <a
-              href="https://github.com/NoahAdeyeye"
+              href="https://github.com/AdeAdekanmbi"
               class="social-icon text-gray-400 hover:text-white transition"
             >
               <i class="fab fa-github text-lg"></i>
@@ -1304,32 +1200,131 @@
     <script>
       // Initialize everything when DOM is loaded
       document.addEventListener("DOMContentLoaded", () => {
+        // Text reveal animations for section headings
+        gsap.utils.toArray(".reveal-text").forEach((el) => {
+          gsap.to(el, {
+            scrollTrigger: {
+              trigger: el,
+              start: "top 88%",
+              toggleActions: "play none none none",
+            },
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+            ease: "power2.out",
+          });
+        });
+
+        // Magnetic button effect
+        document.querySelectorAll(".magnetic-btn").forEach((btn) => {
+          btn.addEventListener("mousemove", (e) => {
+            const rect = btn.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            const dx = (e.clientX - cx) * 0.28;
+            const dy = (e.clientY - cy) * 0.28;
+            btn.style.transform = `translate(${dx}px, ${dy}px)`;
+          });
+          btn.addEventListener("mouseleave", () => {
+            btn.style.transform = "";
+          });
+        });
+
+        // Scroll progress bar
+        const scrollBar = document.getElementById("scroll-progress");
+        window.addEventListener("scroll", () => {
+          const scrollTop = window.scrollY;
+          const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+          scrollBar.style.width = (scrollTop / docHeight * 100) + "%";
+        }, { passive: true });
+
+        // Typewriter effect
+        // const roles = ["Electrical Engineer", "Researcher", "Entrepreneur"];
+        const roles = [
+          "Electrical Engineer",
+          "ML Researcher",
+          "Human-Centered AI",
+          "Assistive Technologies",
+          "Community Leader",
+          "Music Lover"
+        ];
+        const typeEl = document.getElementById("typewriter-text");
+        let roleIndex = 0, charIndex = 0, deleting = false;
+        function typeStep() {
+          const current = roles[roleIndex];
+          if (!deleting) {
+            typeEl.textContent = current.slice(0, ++charIndex);
+            if (charIndex === current.length) {
+              deleting = true;
+              setTimeout(typeStep, 1800);
+              return;
+            }
+          } else {
+            typeEl.textContent = current.slice(0, --charIndex);
+            if (charIndex === 0) {
+              deleting = false;
+              roleIndex = (roleIndex + 1) % roles.length;
+            }
+          }
+          setTimeout(typeStep, deleting ? 55 : 90);
+        }
+        typeStep();
+
+        // Animated stat counters
+        const statsRow = document.getElementById("stats-row");
+        let statsDone = false;
+        const statsObserver = new IntersectionObserver((entries) => {
+          if (entries[0].isIntersecting && !statsDone) {
+            statsDone = true;
+            statsRow.querySelectorAll(".stat-number").forEach((el) => {
+              const target = parseInt(el.dataset.target, 10);
+              const suffix = el.dataset.suffix || "";
+              const prefix = el.dataset.prefix || "";
+              const duration = 1200;
+              const step = 16;
+              const increment = target / (duration / step);
+              let current = 0;
+              const timer = setInterval(() => {
+                current = Math.min(current + increment, target);
+                el.textContent = prefix + Math.floor(current) + suffix;
+                if (current >= target) clearInterval(timer);
+              }, step);
+            });
+          }
+        }, { threshold: 0.4 });
+        statsObserver.observe(statsRow);
+
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+        const mobileMenu = document.getElementById("mobile-menu");
+        const menuIconOpen = document.getElementById("menu-icon-open");
+        const menuIconClose = document.getElementById("menu-icon-close");
+
+        mobileMenuBtn.addEventListener("click", () => {
+          const isOpen = !mobileMenu.classList.contains("hidden");
+          mobileMenu.classList.toggle("hidden");
+          menuIconOpen.classList.toggle("hidden");
+          menuIconClose.classList.toggle("hidden");
+          mobileMenuBtn.setAttribute("aria-expanded", String(!isOpen));
+        });
+
+        // Close mobile menu when a link is clicked
+        document.querySelectorAll(".mobile-nav-link").forEach((link) => {
+          link.addEventListener("click", () => {
+            mobileMenu.classList.add("hidden");
+            menuIconOpen.classList.remove("hidden");
+            menuIconClose.classList.add("hidden");
+            mobileMenuBtn.setAttribute("aria-expanded", "false");
+          });
+        });
+
         // Smooth scrolling for navigation
         document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
           anchor.addEventListener("click", function (e) {
             e.preventDefault();
-
-            const targetId = this.getAttribute("href");
-            const targetElement = document.querySelector(targetId);
-
+            const targetElement = document.querySelector(this.getAttribute("href"));
             if (targetElement) {
-              // Start page transition
-              const pageTransition = document.querySelector(".page-transition");
-              pageTransition.style.transform = "scaleY(1)";
-              pageTransition.style.transformOrigin = "top";
-
-              // After transition completes, scroll to target
-              setTimeout(() => {
-                targetElement.scrollIntoView({
-                  behavior: "smooth",
-                });
-
-                // Reset transition
-                setTimeout(() => {
-                  pageTransition.style.transform = "scaleY(0)";
-                  pageTransition.style.transformOrigin = "bottom";
-                }, 500);
-              }, 700);
+              targetElement.scrollIntoView({ behavior: "smooth" });
             }
           });
         });
